@@ -322,7 +322,11 @@ namespace Content.Server.Zombies
         private void OnMindAdded(Entity<ZombieComponent> ent, ref MindAddedMessage args)
         {
             if (!_role.MindHasRole<ZombieRoleComponent>(args.Mind))
-                _role.MindAddRole(args.Mind, "MindRoleZombie", mind: args.Mind.Comp);
+            {
+                // Use config value if available, otherwise use default
+                var config = Comp<ZombieTransformationConfigComponent>(ent);
+                _role.MindAddRole(args.Mind, config.MindRole, mind: args.Mind.Comp);
+            }
         }
 
         // Remove the role when getting cloned, getting gibbed and borged, or leaving the body via any other method.

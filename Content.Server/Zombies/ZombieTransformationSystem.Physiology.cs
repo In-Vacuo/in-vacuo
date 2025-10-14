@@ -38,8 +38,15 @@ public sealed partial class ZombieTransformationSystem
         RemComp<SentienceTargetComponent>(uid);
 
         // Add zombie accent (server-only component, no need to dirty)
+        // Check for accent override component first (e.g., moths have "zombieMoth")
+        var accent = config.Accent;
+        if (TryComp<ZombieAccentOverrideComponent>(uid, out var accentOverride))
+        {
+            accent = accentOverride.Accent;
+        }
+
         var accentComp = EnsureComp<ReplacementAccentComponent>(uid);
-        accentComp.Accent = config.Accent;
+        accentComp.Accent = accent;
 
         // Bloodstream changes
         if (TryComp<BloodstreamComponent>(uid, out var bloodstream))
