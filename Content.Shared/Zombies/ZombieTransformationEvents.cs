@@ -28,29 +28,3 @@ public sealed class ZombificationRequestedEvent : CancellableEntityEventArgs
         ConfigurationEntity = configurationEntity;
     }
 }
-
-/// <summary>
-/// Raised when zombification begins, after all pre-checks have passed.
-/// Systems should subscribe to this event to perform their part of the transformation.
-/// This is a directed event - only raised on the target entity.
-/// </summary>
-[ByRefEvent]
-public readonly record struct ZombificationStartedEvent(EntityUid Target, EntityUid? ConfigurationEntity);
-
-/// <summary>
-/// Raised after all transformation handlers have completed their work.
-/// Used for final cleanup and post-transformation logic.
-/// This is a directed event - only raised on the target entity.
-/// </summary>
-[ByRefEvent]
-public readonly record struct ZombificationCompletedEvent(EntityUid Target, EntityUid? ConfigurationEntity);
-
-/// <summary>
-/// Raised when zombification is cancelled before completion.
-/// This is a directed event - only raised on the target entity.
-/// </summary>
-[ByRefEvent]
-public readonly record struct ZombificationCancelledEvent(EntityUid Target, string Reason);
-
-// Note: EntityZombifiedEvent already exists in ZombieEvents.cs
-// It will be raised after ZombificationCompletedEvent for backward compatibility

@@ -323,9 +323,12 @@ namespace Content.Server.Zombies
         {
             if (!_role.MindHasRole<ZombieRoleComponent>(args.Mind))
             {
-                // Use config value if available, otherwise use default
-                var config = Comp<ZombieTransformationConfigComponent>(ent);
-                _role.MindAddRole(args.Mind, config.MindRole, mind: args.Mind.Comp);
+                // Use config value if available, otherwise fall back to default
+                var mindRole = TryComp<ZombieTransformationConfigComponent>(ent, out var config)
+                    ? config.MindRole
+                    : "MindRoleZombie";
+
+                _role.MindAddRole(args.Mind, mindRole, mind: args.Mind.Comp);
             }
         }
 
