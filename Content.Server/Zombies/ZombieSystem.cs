@@ -5,8 +5,11 @@ using Content.Server.Body.Systems;
 using Content.Server.Chat;
 using Content.Server.Chat.Systems;
 using Content.Server.Emoting.Systems;
+using Content.Server.Humanoid;
+using Content.Server.NPC.Systems;
 using Content.Server.Speech.EntitySystems;
 using Content.Shared.Anomaly.Components;
+using Content.Shared.NPC.Systems;
 using Content.Shared.Armor;
 using Content.Shared.Bed.Sleep;
 using Content.Shared.Cloning.Events;
@@ -44,6 +47,9 @@ namespace Content.Server.Zombies
         [Dependency] private readonly MobStateSystem _mobState = default!;
         [Dependency] private readonly SharedPopupSystem _popup = default!;
         [Dependency] private readonly SharedRoleSystem _role = default!;
+        [Dependency] private readonly ZombieTransformationSystem _zombieTransformation = default!;
+        [Dependency] private readonly NpcFactionSystem _faction = default!;
+        [Dependency] private readonly HumanoidAppearanceSystem _humanoidAppearance = default!;
 
         public readonly ProtoId<NpcFactionPrototype> Faction = "Zombie";
 
@@ -78,7 +84,7 @@ namespace Content.Server.Zombies
 
             SubscribeLocalEvent<IncurableZombieComponent, MapInitEvent>(OnPendingMapInit);
 
-            SubscribeLocalEvent<ZombifyOnDeathComponent, MobStateChangedEvent>(OnDamageChanged);
+            // Note: ZombifyOnDeathComponent -> MobStateChangedEvent is now handled by ZombieTransformationSystem
         }
 
         private void OnBeforeRemoveAnomalyOnDeath(Entity<PendingZombieComponent> ent, ref BeforeRemoveAnomalyOnDeathEvent args)
@@ -105,7 +111,7 @@ namespace Content.Server.Zombies
         {
             if (_mobState.IsDead(uid))
             {
-                ZombifyEntity(uid);
+                _zombieTransformation.TryZombifyEntity(uid);
                 return;
             }
 
@@ -267,7 +273,7 @@ namespace Content.Server.Zombies
 
                 if (_mobState.IsIncapacitated(entity, mobState) && !HasComp<ZombieComponent>(entity) && !HasComp<ZombieImmuneComponent>(entity) && !HasComp<NonSpreaderZombieComponent>(args.User))
                 {
-                    ZombifyEntity(entity);
+                    _zombieTransformation.TryZombifyEntity(entity);
                     args.BonusDamage = -args.BaseDamage;
                 }
                 else if (mobState.CurrentState == MobState.Alive) //heals when zombies bite live entities

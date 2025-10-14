@@ -33,7 +33,7 @@ public sealed class ZombieRuleSystem : GameRuleSystem<ZombieRuleComponent>
     [Dependency] private readonly SharedMindSystem _mindSystem = default!;
     [Dependency] private readonly SharedRoleSystem _roles = default!;
     [Dependency] private readonly StationSystem _station = default!;
-    [Dependency] private readonly ZombieSystem _zombie = default!;
+    [Dependency] private readonly ZombieTransformationSystem _zombieTransformation = default!;
 
     public override void Initialize()
     {
@@ -150,7 +150,7 @@ public sealed class ZombieRuleSystem : GameRuleSystem<ZombieRuleComponent>
 
     private void OnZombifySelf(EntityUid uid, IncurableZombieComponent component, ZombifySelfActionEvent args)
     {
-        _zombie.ZombifyEntity(uid);
+        _zombieTransformation.TryZombifyEntity(uid);
         if (component.Action != null)
             Del(component.Action.Value);
     }
